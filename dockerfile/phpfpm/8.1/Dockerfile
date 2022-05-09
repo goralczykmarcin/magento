@@ -73,9 +73,11 @@ RUN cd /usr/local/etc/php/conf.d/ && \
 
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
-RUN mkdir -p /var/www/magento \
+RUN mkdir -p /var/www/html \
    && chown -R app:app /var/www
+
+COPY conf/php.ini $PHP_INI_DIR
 
 USER app:app
 VOLUME /var/www
-WORKDIR /var/www/magento
+WORKDIR /var/www/html
