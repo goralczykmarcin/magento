@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+  app:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/magento
+      - ./site.conf:/etc/nginx/conf.d/site.conf
+    links: 
+      - php
+  php:
+    build: ./dockerfile/phpfpm/8.1
+    volumes:
+      - ./src:/var/www/magento
+    links: 
+      - mysql
+  mysql:
+    platform: linux/x86_64
+    image: mysql:latest
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: test123
+      MYSQL_ROOT_PASSWORD: test123
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: 'test123'
+    ports:
+      - '3306:80'
+  elasticsearch:
+    image: elasticsearch:7.17.3
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+    environment:
+      discovery.type: single-node
+# volumes:
+#   web:
+#     driver: local
+#     driver_opts:
+#       type: none
+#       device: ./src
+#       o: bind 

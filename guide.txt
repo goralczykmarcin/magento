@@ -1,0 +1,39 @@
+Error: Could not validate a connection to Elasticsearch. No alive nodes found in your cluster 
+before install add elastic search to docker container, add flag to set up elastic search host
+bin/magento setup:install --elasticsearch-host=elasticsearch
+
+bin/magento admin:user:create --admin-user admin --admin-password admin123 --admin-email test@test.com --admin-firstname Admin --admin-lastname Admin
+
+bin/magento module:disable Magento_TwoFactorAuth
+
+Error when trying create admin user:
+
+> INSERT INTO authorization_role (role_id, parent_id, tree_level, sort_order, role_type, user_id, user_type, role_name) VALUES (1, 0, 1, 1, 'G', 0, '2', 'Administrators');
+Query OK, 1 row affected (0.004 sec)
+
+>  INSERT INTO authorization_rule (rule_id, role_id, resource_id, privileges, permission) VALUES (1, 1, 'Magento_Backend::all', null, 'allow');
+Query OK, 1 row affected (0.034 sec)
+
+unlock Admin account
+bin/magento admin:user:unlock admin
+
+Strona maintenance
+plik maintenance do usunięcia - sciezka
+maintenance.flag -> src/var/
+
+Elastic search command line
+curl elasticsearch:9200
+
+curl -XGET 'elasticsearch:9200/_search?size=1' -H 'Content-Type: application/json' -d '{ "query": { "match_all": {} } }'
+
+Guides: 
+https://pandagroup.co/blog/magento-2-docker-tutorial-part-1/
+https://pandagroup.co/blog/magento-2-docker-tutorial-part-2/
+https://pandagroup.co/blog/magento-2-docker-tutorial-part-3/
+
+missing roles:
+https://blog.chapagain.com.np/magento-2-no-administrators-role-was-found-data-fixture-needs-to-be-run-while-creating-admin-user-from-command-line/
+
+magento
+https://devdocs.magento.com/guides/v2.4/install-gde/system-requirements.html
+https://marketplace.magento.com/customer/accessKeys/
