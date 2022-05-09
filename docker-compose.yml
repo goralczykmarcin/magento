@@ -6,34 +6,54 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./src:/var/www/magento
+      - appdata:/var/www/html
       - ./site.conf:/etc/nginx/conf.d/site.conf
     links: 
-      - php
-  php:
-    build: ./dockerfile/phpfpm/8.1
+      - phpfpm
+  phpfpm:
+    # build: ./dockerfile/phpfpm/8.1
+    image: goralczykmarcin/php-fpm:8.1-magento
     volumes:
-      - ./src:/var/www/magento
+      - appdata:/var/www/html
     links: 
-      - mysql
-  mysql:
-    platform: linux/x86_64
-    image: mysql:latest
+      - db
+
+  # mysql:
+  #   platform: linux/x86_64
+  #   image: mysql:latest
+  #   volumes:
+  #     - ./mysql:/var/lib/mysql
+  #   environment:
+  #     MYSQL_DATABASE: magento
+  #     MYSQL_USER: strony
+  #     MYSQL_PASSWORD: vascoe
+  #     MYSQL_ROOT_PASSWORD: vascoe
+  db:
+    image: mariadb:10.4
+    command: --max_allowed_packet=64M
+    # ports:
+    #   - "3306:3306"
     volumes:
-      - ./mysql:/var/lib/mysql
-    environment:
-      MYSQL_DATABASE: mydatabase
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: test123
-      MYSQL_ROOT_PASSWORD: test123
+      - dbdata:/var/lib/mysql
+    environment: 
+      MYSQL_HOST: db
+      MYSQL_ROOT_PASSWORD: vascoe
+      MYSQL_DATABASE: magento
+      MYSQL_USER: strony
+      MYSQL_PASSWORD: vascoe
+      # MYSQL_INTEGRATION_ROOT_PASSWORD: vascoe
+      # MYSQL_INTEGRATION_DATABASE: magento_integration_tests
+      # MYSQL_INTEGRATION_USER: strony
+      # MYSQL_INTEGRATION_PASSWORD: vascoe
+      # MYSQL_INTEGRATION_HOST: db
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     links:
-      - mysql
+      - db
     environment:
-      PMA_HOST: mysql
+      PMA_HOST: db
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: 'test123'
+      MYSQL_ROOT_PASSWORD: 'vascoe'
     ports:
       - '3306:80'
   elasticsearch:
@@ -43,10 +63,11 @@ services:
       - "9200:9200"
     environment:
       discovery.type: single-node
-# volumes:
-#   web:
-#     driver: local
-#     driver_opts:
-#       type: none
-#       device: ./src
-#       o: bind 
+volumes:
+  appdata:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./src
+      o: bind 
+  dbdata:
