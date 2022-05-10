@@ -11,41 +11,22 @@ services:
     links: 
       - phpfpm
   phpfpm:
-    # build: ./dockerfile/phpfpm/8.1
     image: goralczykmarcin/php-fpm:8.1-magento
     volumes:
       - appdata:/var/www/html
     links: 
       - db
-
-  # mysql:
-  #   platform: linux/x86_64
-  #   image: mysql:latest
-  #   volumes:
-  #     - ./mysql:/var/lib/mysql
-  #   environment:
-  #     MYSQL_DATABASE: magento
-  #     MYSQL_USER: strony
-  #     MYSQL_PASSWORD: vascoe
-  #     MYSQL_ROOT_PASSWORD: vascoe
   db:
     image: mariadb:10.4
     command: --max_allowed_packet=64M
-    # ports:
-    #   - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
-    environment: 
-      MYSQL_HOST: db
-      MYSQL_ROOT_PASSWORD: vascoe
-      MYSQL_DATABASE: magento
-      MYSQL_USER: strony
-      MYSQL_PASSWORD: vascoe
-      # MYSQL_INTEGRATION_ROOT_PASSWORD: vascoe
-      # MYSQL_INTEGRATION_DATABASE: magento_integration_tests
-      # MYSQL_INTEGRATION_USER: strony
-      # MYSQL_INTEGRATION_PASSWORD: vascoe
-      # MYSQL_INTEGRATION_HOST: db
+    env_file: ./env/db.env
+
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     links:
@@ -63,6 +44,14 @@ services:
       - "9200:9200"
     environment:
       discovery.type: single-node
+  rabbitmq:
+    build: ./dockerfile/rabbitmq/3.9
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    env_file: ./env/rabbitmq.env
 volumes:
   appdata:
     driver: local
@@ -71,3 +60,4 @@ volumes:
       device: ./src
       o: bind 
   dbdata:
+  rabbitmqdata:
